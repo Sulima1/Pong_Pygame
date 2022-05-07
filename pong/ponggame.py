@@ -1,10 +1,8 @@
 #TO DO LIST
 
-#ADD COLLISION WITH PLAYERS AND WALLS
-#FIX SCORING SYSTEM
 #ADD TIMER BEFORE BALL MOVES 
 #ADD AUDIO
-#CHANGE COLOURS
+#IF PLAYER HITS 5 POINTS -> ANNOUNCE WINNER -> RESTART
 
 import pygame, os, random
 from paddle import Paddle
@@ -13,8 +11,8 @@ pygame.init()
 pygame.font.init()
 
 #colours
-WHITE = (255, 255, 255)
-GREEN = (56, 121, 7) #background color
+WHITE = (192, 192, 192)
+BACKGROUND = (12, 35, 83) #background color
 
 #frames
 FPS = 60
@@ -31,6 +29,10 @@ BALL_Y_MAX = 490
 #font
 SCORE_FONT = pygame.font.Font("freesansbold.ttf", 40)
 
+#scores
+scoreA = 0
+scoreB = 0
+
 
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Pong')
@@ -38,45 +40,45 @@ pygame.display.set_caption('Pong')
 
 def draw_window(ball, paddleA, paddleB, all_sprites_list, textA, textB):
 
-    WIN.fill(GREEN)
+    WIN.fill(BACKGROUND)
     pygame.draw.line(WIN, WHITE, [349, 0], [349, 500], 5)
     all_sprites_list.draw(WIN)
     WIN.blit(textA, (250, 10))
     WIN.blit(textB, (420, 10))
     
-    pygame.display.update()
+    pygame.display.flip()
 
 def paddle_movement(keys_pressed, paddleA, paddleB):
 
-    if keys_pressed[pygame.K_w]:
+    if paddleA.rect.y + VEL > 0 and keys_pressed[pygame.K_w]:
         paddleA.rect.y -= VEL
-    if keys_pressed[pygame.K_s]:
+    if paddleA.rect.bottom + VEL <= HEIGHT and keys_pressed[pygame.K_s]:
         paddleA.rect.y += VEL
-    if keys_pressed[pygame.K_UP]:
+    if paddleB.rect.y + VEL > 0 and keys_pressed[pygame.K_UP]:
         paddleB.rect.y -= VEL
-    if keys_pressed[pygame.K_DOWN]:
+    if paddleB.rect.bottom <= HEIGHT and keys_pressed[pygame.K_DOWN]:
         paddleB.rect.y += VEL
 
-def handle_ball(ball, scoreA, scoreB):
+def handle_ball(ball):
+    global scoreA, scoreB
 
     if ball.rect.x >= BALL_X_MAX:
-        #ball.velocity[0] = -ball.velocity[0]
         scoreA += 1
         ball_restart(ball)
     if ball.rect.x <= 0:
-        #ball.velocity[0] = -ball.velocity[0]
         scoreB += 1
         ball_restart(ball)
     if ball.rect.y > BALL_Y_MAX:
         ball.velocity[1] = -ball.velocity[1]
     if ball.rect.y < 0:
         ball.velocity[1] = -ball.velocity[1]
-    
+
     return scoreA, scoreB
 
 def ball_restart(ball):
     ball.rect.x, ball.rect.y = WIDTH/2, HEIGHT/2
     ball.velocity[0] *= random.choice((1, -1))
+    ball.velocity[1] *= random.choice((1, -1))
 
 def handle_collision(ball, paddleA, paddleB):
     if pygame.sprite.collide_mask(ball, paddleA) or pygame.sprite.collide_mask(ball, paddleB):
@@ -84,11 +86,6 @@ def handle_collision(ball, paddleA, paddleB):
 
 
 def main():
-    scoreA = 0
-    scoreB = 0
-
-    textA = SCORE_FONT.render(f"{scoreA}", False, WHITE)
-    textB = SCORE_FONT.render(f"{scoreB}", False, WHITE)
 
     ball = Ball(WHITE, 10, 10)
     ball.rect.x = 345
@@ -113,10 +110,13 @@ def main():
                 status = False
                 pygame.quit()
 
+        textA = SCORE_FONT.render(f"{scoreA}", False, WHITE)
+        textB = SCORE_FONT.render(f"{scoreB}", False, WHITE)
+
 
         all_sprites_list.update()
 
-        handle_ball(ball, scoreA, scoreB)
+        handle_ball(ball)
         handle_collision(ball, paddleA, paddleB)
 
         keys_pressed = pygame.key.get_pressed()
