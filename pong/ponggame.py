@@ -1,8 +1,3 @@
-#TO DO LIST
-
-#ADD TIMER BEFORE BALL MOVES 
-#ADD AUDIO
-#IF PLAYER HITS 5 POINTS -> ANNOUNCE WINNER -> RESTART
 
 import pygame, os, random
 from paddle import Paddle
