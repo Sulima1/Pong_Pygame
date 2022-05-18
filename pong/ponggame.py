@@ -64,7 +64,6 @@ def paddle_movement(keys_pressed, paddleA, paddleB):
         paddleB.rect.y += VEL
 
 def handle_ball(ball):
-    global scoreA, scoreB
 
     if ball.rect.x >= BALL_X_MAX:
         scoreA += 1
@@ -134,7 +133,7 @@ def main():
 
         all_sprites_list.update()
 
-        handle_ball(ball)
+        scoreA, scoreB = handle_ball(ball)
         handle_collision(ball, paddleA, paddleB)
 
         keys_pressed = pygame.key.get_pressed()
